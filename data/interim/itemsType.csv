@@ -1,0 +1,201 @@
+Name,Gold,Type,ID
+0,0,other,0
+Poro-Snax,0,other,2052
+Minion Dematerializer,0,other,2403
+Commencing Stopwatch,0,other,2419
+Scarecrow Effigy,0,other,3330
+Stealth Ward,0,other,3340
+Farsight Alteration,0,other,3363
+Oracle Lens,0,other,3364
+Your Cut,0,other,3400
+Eye of the Herald,0,other,3513
+Kalista's Black Spear,0,other,3599
+Kalista's Black Spear,0,other,3600
+Health Potion,50,other,2003
+Total Biscuit of Everlasting Will,50,other,2010
+Control Ward,75,other,2055
+Rejuvenation Bead,150,other,1006
+Refillable Potion,150,other,2031
+Faerie Charm,250,support,1004
+Boots,300,other,1001
+Cloth Armor,300,tank,1029
+Dagger,300,ad,1042
+Slightly Magical Footwear,300,other,2422
+Sapphire Crystal,350,ap,1027
+Emberknife,350,other,1035
+Long Sword,350,ad,1036
+Hailblade,350,other,1039
+Dark Seal,350,ap,1082
+Ruby Crystal,400,tank,1028
+Doran's Ring,400,ap,1056
+Tear of the Goddess,400,ap,3070
+Spellthief's Edge,400,support,3850
+Frostfang,400,support,3851
+Shard of True Ice,400,support,3853
+Steel Shoulderguards,400,support,3854
+Runesteel Spaulders,400,support,3855
+Pauldrons of Whiterock,400,support,3857
+Relic Shield,400,support,3858
+Targon's Buckler,400,support,3859
+Bulwark of the Mountain,400,support,3860
+Spectral Sickle,400,support,3862
+Harrowing Crescent,400,support,3863
+Black Mist Scythe,400,support,3864
+Amplifying Tome,435,ap,1052
+Null-Magic Mantle,450,tank,1033
+Doran's Shield,450,tank,1054
+Doran's Blade,450,ad,1055
+Cull,450,ad,1083
+Elixir of Iron,500,tank,2033
+Elixir of Sorcery,500,ap,2138
+Elixir of Wrath,500,ad,2139
+Corrupting Potion,500,other,2140
+Cloak of Agility,600,tank,1018
+Stopwatch,650,other,2420
+Broken Stopwatch,650,other,2421
+Perfectly Timed Stopwatch,650,other,2423
+Broken Stopwatch,650,other,2424
+Crystalline Bracer,650,tank,3801
+Sheen,700,ad,2015
+Kircheis Shard,700,ad,3057
+Chain Vest,800,tank,1031
+Winged Moonplate,800,tank,3066
+Kindlegem,800,tank,3067
+Bramble Vest,800,tank,3076
+Forbidden Idol,800,support,3114
+Executioner's Calling,800,ad,3123
+Oblivion Orb,800,ap,3916
+Rageknife,800,ad,6677
+Blasting Wand,850,ad,1026
+Aether Wisp,850,ap,3113
+Pickaxe,875,ad,1037
+Giant's Belt,900,tank,1011
+Vampiric Scepter,900,ad,1053
+Negatron Cloak,900,tank,1057
+Boots of Swiftness,900,other,3009
+Glacial Buckler,900,tank,3024
+Fiendish Codex,900,ap,3108
+Guardian's Horn,950,tank,2051
+Guardian's Orb,950,ap,3112
+Guardian's Blade,950,ad,3158
+Guardian's Hammer,950,bruiser,3177
+Ionian Boots of Lucidity,950,other,3184
+Bandleglass Mirror,950,ap,4642
+Recurve Bow,1000,ad,1043
+Warden's Mail,1000,tank,3082
+Mobility Boots,1000,other,3117
+Seeker's Armguard,1000,ap,3191
+Verdant Barrier,1000,ap,4632
+Zeal,1050,ad,3086
+Hextech Alternator,1050,ap,3145
+Watchful Wardstone,1100,support,3006
+Berserker's Greaves,1100,ad,3020
+Sorcerer's Shoes,1100,ap,3044
+Phage,1100,ad,3047
+Plated Steelcaps,1100,tank,3051
+Hearthbound Axe,1100,ad,3111
+Mercury's Treads,1100,tank,3133
+Caulfield's Warhammer,1100,ad,3134
+Serrated Dirk,1100,ad,4638
+Vigilant Wardstone,1100,support,4643
+Ironspike Whip,1100,ad,6029
+Bami's Cinder,1100,tank,6660
+Tiamat,1200,ad,3077
+Needlessly Large Rod,1250,ap,1058
+Spectre's Cowl,1250,tank,3211
+Blighting Jewel,1250,ap,4630
+B. F. Sword,1300,ad,1038
+Quicksilver Sash,1300,ad,3140
+Hexdrinker,1300,ad,3155
+Lost Chapter,1300,ap,3802
+Leeching Leer,1300,ap,4635
+Noonquiver,1300,ad,6670
+Last Whisper,1450,ad,3035
+Aegis of the Legion,1500,tank,3105
+Mejai's Soulstealer,1600,ap,3041
+Chemtech Putrifier,2300,support,3011
+Redemption,2300,support,3107
+Knight's Vow,2300,support,3109
+Mikael's Blessing,2300,support,3222
+Ardent Censer,2300,support,3504
+Staff of Flowing Water,2300,support,6616
+Zeke's Convergence,2400,support,3050
+Umbral Glaive,2400,ad,3179
+Shurelya's Battlesong,2500,support,2065
+Mortal Reminder,2500,ad,3033
+Rapid Firecannon,2500,ad,3094
+Frozen Heart,2500,tank,3110
+Morellonomicon,2500,ap,3165
+Locket of the Iron Solari,2500,tank,3190
+Imperial Mandate,2500,support,4005
+Moonstone Renewer,2500,support,6617
+Anathema's Chains,2500,tank,8001
+Phantom Dancer,2600,ad,3046
+Runaan's Hurricane,2600,ad,3085
+Banshee's Veil,2600,ap,3102
+Guinsoo's Rageblade,2600,ad,3124
+Zhonya's Hourglass,2600,ap,3157
+Chempunk Chainsword,2600,ad,6609
+Serpent's Fang,2600,ad,6695
+Abyssal Mask,2700,tank,3001
+Thornmail,2700,tank,3075
+Stormrazor,2700,ad,3095
+Void Staff,2700,ap,3135
+Randuin's Omen,2700,tank,3143
+Guardian Angel,2800,tank,3026
+Maw of Malmortius,2800,bruiser,3156
+Hullbreaker,2800,bruiser,3181
+Essence Reaver,2800,ad,3508
+Frostfire Gauntlet,2800,tank,6662
+Turbo Chemtank,2800,tank,6664
+Manamune,2900,ad,3004
+Spirit Visage,2900,tank,3065
+Youmuu's Ghostblade,2900,ad,3142
+Dead Man's Plate,2900,tank,3742
+Edge of Night,2900,ad,3814
+Force of Nature,2900,tank,4401
+Seraph's Embrace,3000,ap,3003
+Muramana,3000,ad,3036
+Archangel's Staff,3000,ap,3040
+Lord Dominik's Regards,3000,ad,3042
+Warmog's Armor,3000,tank,3083
+Lich Bane,3000,ap,3100
+Nashor's Tooth,3000,ap,3115
+Rylai's Crystal Scepter,3000,ap,3116
+Mercurial Scimitar,3000,ad,3139
+Horizon Focus,3000,ap,4628
+Cosmic Drive,3000,ap,4629
+Demonic Embrace,3000,ap,4637
+Silvermere Dawn,3000,bruiser,6035
+The Collector,3000,ad,6676
+Sterak's Gage,3100,bruiser,3053
+Black Cleaver,3100,bruiser,3071
+Wit's End,3100,ad,3091
+Death's Dance,3100,bruiser,6333
+Sunfire Aegis,3200,tank,3068
+Hextech Rocketbelt,3200,ap,3152
+Blade of The Ruined King,3200,ad,3153
+Riftmaker,3200,ap,4633
+Night Harvester,3200,ap,4636
+Liandry's Anguish,3200,ap,6653
+Luden's Tempest,3200,ap,6655
+Everfrost,3200,ap,6656
+Duskblade of Draktharr,3200,ad,6691
+Eclipse,3200,ad,6692
+Prowler's Claw,3200,ad,6693
+Serylda's Grudge,3200,ad,6694
+Ravenous Hydra,3300,bruiser,3074
+Gargoyle Stoneplate,3300,tank,3193
+Titanic Hydra,3300,bruiser,3748
+Goredrinker,3300,bruiser,6630
+Stridebreaker,3300,bruiser,6631
+Divine Sunderer,3300,bruiser,6632
+Trinity Force,3333,ad,3078
+Infinity Edge,3400,ad,3031
+Bloodthirster,3400,ad,3072
+Galeforce,3400,ad,6671
+Kraken Slayer,3400,ad,6672
+Immortal Shieldbow,3400,ad,6673
+Navori Quickblades,3400,ad,6675
+Rabadon's Deathcap,3600,ap,3089
+The Golden Spatula,7487,other,4403
