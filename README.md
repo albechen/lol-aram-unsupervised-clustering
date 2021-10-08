@@ -6,25 +6,25 @@
 
 In Riot's flagship game, League of Legends, there is a game mode called ARAM; an acronym for *"All Random - All Middle"*. This game mode features a single lane map in which two teams of five random champions duke it out in a simplified team fight focused game of League. Prior to the start of the game, the five random champions can be re-rolled to provide some level of control over champions used. Therefore, this research aims to 1) cluster champions and build given match statistics of each player and 2) create a recommendation model given re-rolled champion options and current team composition.
 
-- [0: static_data_dragon_keys](https://github.com/albechen/lol_aram_character_suggestion/blob/main/0_static_data_dragon_keys.py) <br/>
+- [0: static_data_dragon_keys](https://github.com/albechen/lol-aram-recommendation-model/blob/main/0_static_data_dragon_keys.py) <br/>
 Data pulls using Data Dragon API of champion and items in league of legends - constant across all games
 
-- [1: pull_riotWatcher_games](https://github.com/albechen/lol_aram_character_suggestion/blob/main/1_pull_riotWatcher_games.py) <br/>
+- [1: pull_riotWatcher_games](https://github.com/albechen/lol-aram-recommendation-model/blob/main/1_pull_riotWatcher_games.py) <br/>
 Created workflow to continuously pull new match histories of players by incrementing through each player in the newly pulled match. Rate limiting supported by riot-watcher but pulls about 2,800 games an hour. Matches stored in raw data as pickle files but can be changed to JSON
 
-- [2: flatten_matches_to_df.](https://github.com/albechen/lol_aram_character_suggestion/blob/main/2_flatten_matches_to_df..py) <br/>
+- [2: flatten_matches_to_df.](https://github.com/albechen/lol-aram-recommendation-model/blob/main/2_flatten_matches_to_df..py) <br/>
 All matches in raw data folder aggregated with stats to be used. Flattened into single dataframe to be saved as csv file with each player's stat as a single row - such that each game produces 10 rows.
 
-- [3: clean_columns_and_filter](https://github.com/albechen/lol_aram_character_suggestion/blob/main/3_clean_columns_and_filter.py) <br/>
+- [3: clean_columns_and_filter](https://github.com/albechen/lol-aram-recommendation-model/blob/main/3_clean_columns_and_filter.py) <br/>
 Adding some simple stats and cleaning to filter out data. Games prior to season 11 are filtered out along with games that have a player that build items not regularly built on their champion.
 
-- [4: feature_engineering](https://github.com/albechen/lol_aram_character_suggestion/blob/main/4_feature_engineering.py) <br/>
+- [4: feature_engineering](https://github.com/albechen/lol-aram-recommendation-model/blob/main/4_feature_engineering.py) <br/>
 Main features engineered for clustering and modeling. All numerical stats are transformed to 1) stat per min of game duration, 2) % of stat per team's stat, and 3) % of stat per game's stat.
 
-- [5: pca_setup](https://github.com/albechen/lol_aram_character_suggestion/blob/main/5_pca_setup.py) <br/>
+- [5: pca_setup](https://github.com/albechen/lol-aram-recommendation-model/blob/main/5_pca_setup.py) <br/>
 Engineered features are cleaned using 1) log transformation on skewed columns, 2) normalizing and min max scaling, 3) PCA transformation with min 95% variance accounted for
 
-- [6: unsupervised_clustering](https://github.com/albechen/lol_aram_character_suggestion/blob/main/6_unsupervised_clustering.py) <br/>
+- [6: unsupervised_clustering](https://github.com/albechen/lol-aram-recommendation-modelblob/main/6_unsupervised_clustering.py) <br/>
 Clustering of PCA transformed data was preformed to determine champion/build grouping and to create champ/build cluster probability dataset.
   1. Checked optimal clusters using Kmeans and Gaussian for data (each row being player's stats in single game)
   2. Preform clustering given optimal clusters on pca data
@@ -35,7 +35,7 @@ Clustering of PCA transformed data was preformed to determine champion/build gro
   6. Preform clustering on aggregated data given optimal clusters
   7. Graph PC0 vs. PC1 with coloring of different clusters to visually observe separation
 
-- [7: recommendation_model](https://github.com/albechen/lol_aram_character_suggestion/blob/main/7_recommendation_model.py) <br/>
+- [7: recommendation_model](https://github.com/albechen/lol-aram-recommendation-model/blob/main/7_recommendation_model.py) <br/>
 Aim is to aggregate data on a team level to represent each team's cluster composition to create dataset to model team's victories.
   1. Join prior dataset to every game and sum probability of each cluster across each team in each game
   2. Adjust for skew, scale, and preform PCA to min 95% variance accounted
