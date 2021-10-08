@@ -85,6 +85,13 @@ def get_n_cluster_score_per_model(x, modelList, maxClusters, modelStr2):
             )
         )
         fig.savefig("data/results/images/best_cluster_{}.jpg".format(modelStr2))
+    elif modelStr2 in ["Agg Gaussian"]:
+        fig.suptitle(
+            "Inital Clustering by {} - N Clusters vs. Davies Bouldin Calinski Harabasz Score by KMeans and Gaussian Models".format(
+                modelStr2
+            )
+        )
+        fig.savefig("data/results/images/best_cluster_{}.jpg".format(modelStr2))
     else:
         fig.suptitle(
             "N Clusters vs. Davies Bouldin Calinski Harabasz Score by KMeans and Gaussian Models"
@@ -99,9 +106,6 @@ modelList = ["KMeans", "GaussianMixture"]
 results_per_model = get_n_cluster_score_per_model(
     get_base_x_y(pca_df)[0], modelList, 20, ""
 )
-# kmeans_df = get_optimal_n_cluster(x_df, 2, "AgglomerativeClustering")
-# gaussian_df = get_optimal_n_cluster(x_df, 10, "Birch")
-# result = pd.concat([kmeans_df, gaussian_df])
 
 
 #%%
@@ -144,7 +148,7 @@ def get_n_cluster_score_per_model_from_agg(
 
 
 #%%
-n_clusters = 13
+n_clusters = 9
 maxClusters = 20
 modelList = ["KMeans", "GaussianMixture"]
 modelList_pipe = ["KMeans_pipe", "Gaussian_pipe"]
@@ -160,6 +164,13 @@ def get_champBuild_cluster_from_agg_clusters(
     cluster_per_champ_build = get_cluster_for_champ_build_from_agg(
         pca_df, n_cluster_1, "KMeans"
     )
+
+    clusterBase = cluster_per_champ_build.copy()
+    for n in range(n_cluster_1):
+        clusterBase["C%s" % (n)] = clusterBase[str(n)] / clusterBase["total"]
+        clusterBase = clusterBase.drop(columns=[str(n)])
+    clusterBase = clusterBase.drop(columns=["total"])
+
     pcaPipe = Pipeline(
         [
             ("scaler", StandardScaler()),
@@ -181,18 +192,131 @@ def get_champBuild_cluster_from_agg_clusters(
     y_cluster["predCluster"] = y_cluster.predCluster.astype("category")
     results = y_cluster.join(pd.DataFrame(pcaResults, columns=["PC0", "PC1"]))
 
-    return results
+    return results, clusterBase
 
 
 #%%
-result_cluster_per_champ = get_champBuild_cluster_from_agg_clusters(
-    pca_df, 12, 9, "KMeans_pipe"
+results, clusterBase = get_champBuild_cluster_from_agg_clusters(
+    pca_df, 9, 8, "KMeans_pipe"
 )
-result_cluster_per_champ.to_csv("data/results/cluster_per_champ_build.csv")
+results.to_csv("data/results/cluster_per_champ_build.csv")
+clusterBase.to_csv("data/results/cluster_percents_per_champ_build.csv")
 
 #%%
-ax = sns.scatterplot(data=result_cluster_per_champ, x="PC0", y="PC1", hue="predCluster")
+ax = sns.scatterplot(data=results, x="PC0", y="PC1", hue="predCluster")
 plt.legend(bbox_to_anchor=(1, 1), loc=2, borderaxespad=0.0)
 fig = ax.get_figure()
 fig.suptitle("Cluster by Champion and Builds")
-fig.savefig("data/results/images/championCluster.jpg")
+fig.savefig("data/results/images/championCluster_pct_kmeans.jpg")
+
+
+#%%
+def predict_gaussian_for_n_clusters(df, n_clusters):
+    x, y = get_base_x_y(df)
+    gm = GaussianMixture(n_components=n_clusters, random_state=0)
+    gm.fit(x)
+
+    y_copy = y.copy()
+    y_copy["predClasses"] = gm.predict(x)
+    y_copy["predClasses"] = y_copy.predClasses.astype("category")
+
+    predProb_df = gm.predict_proba(x)
+    cluster_cols = ["c{}".format(n) for n in list(range(n_clusters))]
+    cluster_df = pd.DataFrame(predProb_df, columns=cluster_cols)
+
+    result = y_copy.join(cluster_df)
+    return result
+
+
+def lowerBound(mean, std):
+    lowerBound = mean - std
+    if lowerBound < 0:
+        return 0
+    else:
+        return lowerBound
+
+
+def agg_cluster_proba_per_champ_build(df, n_clusters):
+    aggMeanStd_dict = {}
+    colMeanStd_list = []
+    for x in range(n_clusters):
+        clusterStr = "c{}".format(x)
+        aggMeanStd_dict[clusterStr] = ["mean", "std"]
+        colMeanStd_list.append([clusterStr, clusterStr + "_mean", clusterStr + "_std"])
+
+    results = df.groupby(["champion", "build"]).agg(aggMeanStd_dict).reset_index()
+    results.columns = ["_".join(col).strip() for col in results.columns.values]
+    results = results.rename(columns={"champion_": "champion"})
+    results = results.rename(columns={"build_": "build"})
+    for clusterList in colMeanStd_list:
+        cStr, cMean, cStd = clusterList
+        results[cStr + "_upper"] = round(results[cMean] + results[cStd], 5)
+        results[cStr + "_avg"] = round(results[cMean], 5)
+        results[cStr + "_lower"] = results.apply(
+            lambda x: lowerBound(x[cMean], x[cStd]), axis=1
+        )
+        results = results.drop(columns=[cMean, cStd])
+    return results
+
+
+def apply_pca_pipeline(df, n_cluster, modelStr):
+    x = df.copy().drop(columns=["champion", "build"])
+    y = df.copy()[["champion", "build"]]
+
+    pcaPipe = Pipeline(
+        [
+            ("scaler", StandardScaler()),
+            ("minMax", MinMaxScaler()),
+            ("pca", PCA(n_components=2)),
+        ]
+    )
+
+    pca_x = pcaPipe.fit_transform(x)
+    if modelStr == "KMeans":
+        model = KMeans(n_cluster, random_state=0)
+    elif modelStr == "Gaussian":
+        model = GaussianMixture(n_cluster, random_state=0)
+
+    y["predCluster"] = model.fit_predict(pca_x)
+    y["predCluster"] = y.predCluster.astype("category")
+    pca_results = y.join(pd.DataFrame(pca_x, columns=["PC0", "PC1"]))
+    return pca_results
+
+
+#%%
+modelStrList = ["KMeans_pipe", "Gaussian_pipe"]
+n_clusters = 9
+maxClusters = 20
+clustersAvg_df = predict_gaussian_for_n_clusters(pca_df, n_clusters)
+clustersGrouped = agg_cluster_proba_per_champ_build(clustersAvg_df, n_clusters)
+optimal_cluster_results = get_n_cluster_score_per_model(
+    clustersGrouped.copy().drop(columns=["champion", "build"]),
+    modelStrList,
+    maxClusters,
+    "Agg Gaussian",
+)
+
+#%%
+pcaGaussianClusters = apply_pca_pipeline(clustersGrouped, 7, "KMeans")
+pcaGaussianClusters.to_csv(
+    "data/results/gaussian_cluster_per_champ_build.csv", index=False
+)
+clustersGrouped.to_csv("data/results/cluster_prob_per_champ_build.csv", index=False)
+
+ax = sns.scatterplot(data=pcaGaussianClusters, x="PC0", y="PC1", hue="predCluster")
+plt.legend(bbox_to_anchor=(1, 1), loc=2, borderaxespad=0.0)
+fig = ax.get_figure()
+fig.suptitle("Cluster by Champion and Builds")
+fig.savefig("data/results/images/championCluster_gaussian.jpg")
+# %%
+pcaGaussianClusters["champBuild"] = (
+    pcaGaussianClusters["champion"] + " (" + pcaGaussianClusters["build"].str[5:] + ")"
+)
+clusterChampsListed = (
+    pcaGaussianClusters.groupby("predCluster")["champBuild"]
+    .apply(lambda x: ", ".join(x))
+    .reset_index()
+)
+# %%
+clusterChampsListed.to_csv("data/results/listed_champBuild_clusters.csv", index=False)
+# %%

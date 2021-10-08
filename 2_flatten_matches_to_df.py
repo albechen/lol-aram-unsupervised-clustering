@@ -3,6 +3,7 @@ import pickle
 import os
 import numpy as np
 import pandas as pd
+from datetime import datetime
 
 #%%
 def open_pickle(path):
@@ -11,12 +12,6 @@ def open_pickle(path):
     return file
 
 
-# match = open_pickle(
-#     "data/raw/_kc9cIxy8t3P_7whBECwdIiUxkeesNufJcSrGXaQwNPdkhk_1620180835169_3894004753.pkl"
-# )
-
-#%%
-
 matchInfoList = [
     "gameId",
     "gameCreation",
@@ -24,17 +19,12 @@ matchInfoList = [
     "gameVersion",
 ]
 
-playerInfoList = [
-    "accountId",
-    "summonerName",
-]
-
-playerMatchList = [
-    "teamId",
-    "championId",
-]
+matchPUUID = ["puuid"]
 
 playerStatList = [
+    "summonerName",
+    "championId",
+    "teamId",
     "win",
     "kills",
     "deaths",
@@ -51,7 +41,7 @@ playerStatList = [
     "totalMinionsKilled",
     # TANK STATS
     "totalDamageTaken",
-    "magicalDamageTaken",
+    "magicDamageTaken",
     "physicalDamageTaken",
     "trueDamageTaken",
     # DMG STATS
@@ -66,49 +56,47 @@ playerStatList = [
 
 
 def pull_raw_values_per_match(match):
-
     matchStats = None
-
-    for playerStat, playerIdentity in zip(
-        match["participants"], match["participantIdentities"]
+    matchStats = []
+    for playerStat, puuid in zip(
+        match["info"]["participants"], match["metadata"]["participants"]
     ):
         playerRow = []
 
         for matchInfo in matchInfoList:
-            playerRow.append(match[matchInfo])
+            playerRow.append(match["info"][matchInfo])
 
-        for playerInfo in playerInfoList:
-            playerRow.append(playerIdentity["player"][playerInfo])
-
-        for playerMatchInfo in playerMatchList:
-            playerRow.append(playerStat[playerMatchInfo])
+        playerRow.append(puuid)
 
         for playerStatInfo in playerStatList:
-            playerRow.append(playerStat["stats"][playerStatInfo])
+            playerRow.append(playerStat[playerStatInfo])
 
-        playerArray = np.array(playerRow)
-
-        if matchStats is not None:
-            matchStats = np.vstack([matchStats, playerArray])
-        else:
-            matchStats = playerArray
+        matchStats.append(playerRow)
 
     return matchStats
 
 
+# match = open_pickle("data/raw/NA1_3982842863.pkl")
+# test = pull_raw_values_per_match(match)
+# test
+
+#%%
 def iterate_matches_pull_raw_data():
-    fullStats = None
+    fullStats = []
+    count = 0
+    allMatchStats = []
     for subdir, dirs, files in os.walk("data/raw"):
         for file in files:
             match = open_pickle(os.path.join(subdir, file))
             matchStats = pull_raw_values_per_match(match)
+            allMatchStats.extend(matchStats)
 
-            if fullStats is not None:
-                fullStats = np.vstack([fullStats, matchStats])
-            else:
-                fullStats = matchStats
-    fullColumns = matchInfoList + playerInfoList + playerMatchList + playerStatList
-    fullStats_df = pd.DataFrame(fullStats, columns=fullColumns)
+            count += 1
+            if count % 200 == 0:
+                print(count, ": ", datetime.now())
+
+    fullColumns = matchInfoList + matchPUUID + playerStatList
+    fullStats_df = pd.DataFrame(allMatchStats, columns=fullColumns)
     fullStats_dfdd = fullStats_df.drop_duplicates()
 
     fullStats_dfdd.to_csv("data/interim/rawFlatStats.csv", index=False)

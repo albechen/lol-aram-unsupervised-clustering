@@ -3,7 +3,7 @@ import pandas as pd
 from riotwatcher import LolWatcher
 import pickle
 
-api_key = "RGAPI-c959d8fd-5547-4247-a0cc-0514e34bb7db"
+api_key = "RGAPI-e547be6d-86c3-40f7-a53a-435c3263119c"
 watcher = LolWatcher(api_key)
 my_region = "na1"
 

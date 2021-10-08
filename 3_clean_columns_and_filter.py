@@ -88,10 +88,10 @@ def filter_percent_champ_build(df, minPctBuild):
 
 
 def filter_games_without_all_player_info(df):
-    aggPlayer = df.groupby(["gameId", "teamId"]).agg({"accountId": "count"})
-    aggPlayer = aggPlayer.rename(columns={"accountId": "playerCount"}).reset_index()
-    playerCount_df = df.merge(aggPlayer, on=["gameId", "teamId"], how="left")
-    filtered_df = playerCount_df[playerCount_df["playerCount"] == 5]
+    aggPlayer = df.groupby(["gameId"]).agg({"puuid": "count"})
+    aggPlayer = aggPlayer.rename(columns={"puuid": "playerCount"}).reset_index()
+    playerCount_df = df.merge(aggPlayer, on=["gameId"], how="left")
+    filtered_df = playerCount_df[playerCount_df["playerCount"] == 10]
     result = filtered_df.drop(columns=["playerCount"]).reset_index(drop=True)
     print(len(result))
     return result

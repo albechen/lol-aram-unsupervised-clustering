@@ -1,2 +1,4 @@
-
 data/raw/
+data/processed/
+data/processed/baseFeature_df.csv
+data/processed/baseFeatures_test.csv

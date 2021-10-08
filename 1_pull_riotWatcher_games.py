@@ -1,5 +1,4 @@
 #%%
-from numpy.lib.function_base import append
 from riotwatcher import LolWatcher
 from sortedcontainers import SortedList
 import random
@@ -8,19 +7,17 @@ import pickle
 from datetime import datetime
 
 # https://developer.riotgames.com/#
-api_key = "RGAPI-c959d8fd-5547-4247-a0cc-0514e34bb7db"
+api_key = "RGAPI-4834d45b-49b0-4d36-af1a-81a65e71bde6"
 watcher = LolWatcher(api_key)
-my_region = "na1"
+my_region = "americas"
+
+# puuid = watcher.summoner.by_name("na1", 'TheWaterFell')['puuid']
+# matches = watcher.match_v5.matchlist_by_puuid(
+#                 my_region, puuid, queue=450, type='normal'
+#             )
+# matches
+# match = watcher.match_v5.by_id(my_region, matches[0])
 # %%
-def filter_by_gameMode(int_gamemode, my_region, accountId):
-    my_matches = watcher.match.matchlist_by_account(my_region, accountId)
-    matchList = []
-    for match in my_matches["matches"]:
-        if match["queue"] == int_gamemode:
-            matchList.append(match["gameId"])
-    return matchList
-
-
 def open_pickle(path):
     with open(path, "rb") as f:
         file = pickle.load(f)
@@ -34,15 +31,15 @@ def replace_pickle(path, newFile):
 
 # %%
 def collect_matches(totalMatches, initial_summoner_name=None):
-    my_region = "na1"
+    my_region = "americas"
     if initial_summoner_name == None:
         unpulled_summoner_ids = open_pickle("data/interim/unpulled_summoner_ids.pkl")
         pulled_summoner_ids = open_pickle("data/interim/pulled_summoner_ids.pkl")
         unpulled_match_ids = open_pickle("data/interim/unpulled_match_ids.pkl")
         pulled_match_ids = open_pickle("data/interim/pulled_match_ids.pkl")
     else:
-        summoner = watcher.summoner.by_name(my_region, initial_summoner_name)
-        unpulled_summoner_ids = SortedList([summoner["accountId"]])
+        summoner = watcher.summoner.by_name("na1", initial_summoner_name)
+        unpulled_summoner_ids = SortedList([summoner["puuid"]])
         pulled_summoner_ids = SortedList()
         unpulled_match_ids = SortedList()
         pulled_match_ids = SortedList()
@@ -54,28 +51,24 @@ def collect_matches(totalMatches, initial_summoner_name=None):
             break
         try:
             new_summoner_id = random.choice(unpulled_summoner_ids)
-            matches = filter_by_gameMode(450, my_region, new_summoner_id)
+            matches = watcher.match_v5.matchlist_by_puuid(
+                my_region, new_summoner_id, queue=450, type="normal"
+            )
             unpulled_match_ids.update(matches)
             unpulled_summoner_ids.remove(new_summoner_id)
             pulled_summoner_ids.add(new_summoner_id)
 
             while unpulled_match_ids:
                 new_match_id = random.choice(unpulled_match_ids)
-                match = watcher.match.by_id(my_region, new_match_id)
-                for player in match["participantIdentities"]:
+                match = watcher.match_v5.by_id(my_region, new_match_id)
+                for puuid in match["metadata"]["participants"]:
                     if (
-                        player["player"]["accountId"] not in pulled_summoner_ids
-                        and player["player"]["accountId"] not in unpulled_summoner_ids
+                        puuid not in pulled_summoner_ids
+                        and puuid not in unpulled_summoner_ids
                     ):
-                        unpulled_summoner_ids.add(player["player"]["accountId"])
+                        unpulled_summoner_ids.add(puuid)
 
-                createdDate = match["gameCreation"]
-                replace_pickle(
-                    "data/raw/{}_{}_{}.pkl".format(
-                        new_summoner_id, createdDate, new_match_id
-                    ),
-                    match,
-                )
+                replace_pickle("data/raw/{}.pkl".format(new_match_id), match)
                 unpulled_match_ids.remove(new_match_id)
                 pulled_match_ids.add(new_match_id)
                 count += 1
@@ -93,11 +86,10 @@ def collect_matches(totalMatches, initial_summoner_name=None):
 
 
 #%%
-collect_matches(totalMatches=5000, initial_summoner_name="TheWaterFell")
+collect_matches(totalMatches=8000, initial_summoner_name="TheWaterFell")
 # %%
 import time
 
-time.sleep(60 * 3)
-collect_matches(totalMatches=5000, initial_summoner_name=None)
+collect_matches(totalMatches=4, initial_summoner_name=None)
 
 # %%
