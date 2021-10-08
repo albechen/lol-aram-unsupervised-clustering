@@ -1,6 +1,6 @@
 # League of Legends ARAM Champion Suggestion
 
-**Unsupervised cluster of champion's success in ARAM to build a recommendation model given re-roll options in ARAM for highest win rate**
+**Unsupervised clustering of champion profile in ARAM to build recommendation model given re-roll options in for highest win rate**
 
 **Language:** Python (riot-watcher, pandas, sklearn, seaborn, numpy)
 
