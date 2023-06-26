@@ -11,22 +11,22 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 
 #%%
-clustersGrouped_df = pd.read_csv("data/results/cluster_prob_per_champ_build.csv")
 train = pd.read_csv("data/processed/pca_df.csv")
 test = pd.read_csv("data/processed/baseFeatures_test.csv")
+pca_per_champ_build = pd.read_csv("data/results/pca_per_champ_build.csv")
 
 #%%
 def join_games_with_clustered_champs(df, cluster_df):
     catCols = ["win", "teamId", "gameId", "champion", "build"]
     df = df[catCols]
     joined_df = df.merge(cluster_df, on=["champion", "build"], how="left")
-    agg_df = joined_df.groupby(["gameId", "teamId", "win"]).sum().reset_index()
+    agg_df = joined_df.groupby(["gameId", "teamId", "win"]).mean().reset_index()
 
     return agg_df
 
 
 def get_x_y_values(df):
-    filter_col = [col for col in df if col.startswith("c")]
+    filter_col = [col for col in df if col.startswith("PC")]
     x = df[filter_col]
     y = df[["win"]]
     return x, y
@@ -67,42 +67,30 @@ def get_pca_values_per_row(df, pca_comp):
 #%%
 pca_comp = 10
 pca_df = (
-    train.pipe(join_games_with_clustered_champs, clustersGrouped_df)
+    train.pipe(join_games_with_clustered_champs, pca_per_champ_build)
     .pipe(scale_normailze_adjust_skew)
     .pipe(get_pca_values_per_row, pca_comp)
 )
 
-#%%
-# create distplots
-for column in pca_df.columns:
-    plt.figure()
-    sns.displot(data=pca_df, x=column, hue="win")
-
 # %%
-pipeline = Pipeline(
-    [
-        ("scaler", StandardScaler()),
-        ("minMax", MinMaxScaler()),
-        ("pca", PCA(n_components=10)),
-    ]
-)
-
-aggDF = join_games_with_clustered_champs(train, clustersGrouped_df)
+aggDF = join_games_with_clustered_champs(train, pca_per_champ_build)
 x, y = get_x_y_values(aggDF)
 
-aggDF_test = join_games_with_clustered_champs(test, clustersGrouped_df)
+aggDF_test = join_games_with_clustered_champs(test, pca_per_champ_build)
 x_test, y_test = get_x_y_values(aggDF_test)
 
-xNew = pipeline.fit_transform(x)
-xNew_test = pipeline.fit_transform(x_test)
+scaler = StandardScaler()
+scaler.fit(x)
+x_scaled = scaler.transform(x)
+x_test_scaled = scaler.transform(x_test)
 
 clf = LogisticRegression(random_state=0)
-clf.fit(xNew, y)
+clf.fit(x_scaled, y)
 
 #%%
 modeldf = aggDF_test[["gameId", "teamId", "win"]].copy()
 modeldf = modeldf.join(
-    pd.DataFrame(clf.predict_proba(xNew_test), columns=["loss", "winPercent"])
+    pd.DataFrame(clf.predict_proba(x_test_scaled), columns=["loss", "winPercent"])
 ).drop(columns="loss")
 pivotModelDF = modeldf.pivot(index=["gameId"], columns="win", values="winPercent")
 pivotModelDF = pd.DataFrame(pivotModelDF.to_records())

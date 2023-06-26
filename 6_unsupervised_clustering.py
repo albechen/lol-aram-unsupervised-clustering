@@ -1,5 +1,6 @@
 #%%
 import pandas as pd
+import numpy as np
 import seaborn as sns
 from sklearn.pipeline import Pipeline
 import matplotlib.pyplot as plt
@@ -10,6 +11,7 @@ from sklearn.mixture import GaussianMixture
 from sklearn.metrics import davies_bouldin_score
 from sklearn.metrics import calinski_harabasz_score
 from sklearn.cluster import KMeans
+from sklearn.manifold import TSNE
 
 #%%
 pca_df = pd.read_csv("data/processed/pca_df.csv")
@@ -296,27 +298,75 @@ optimal_cluster_results = get_n_cluster_score_per_model(
     "Agg Gaussian",
 )
 
-#%%
-pcaGaussianClusters = apply_pca_pipeline(clustersGrouped, 9, "KMeans")
-pcaGaussianClusters.to_csv(
-    "data/results/gaussian_cluster_per_champ_build.csv", index=False
-)
-clustersGrouped.to_csv("data/results/cluster_prob_per_champ_build.csv", index=False)
 
-ax = sns.scatterplot(data=pcaGaussianClusters, x="PC0", y="PC1", hue="predCluster")
+#%%
+clustersGrouped = pd.read_csv("data/results/cluster_prob_per_champ_build.csv")
+
+x = clustersGrouped.copy().drop(columns=["champion", "build"])
+y = clustersGrouped.copy()[["champion", "build"]]
+
+scaler = StandardScaler()
+data_scaled = scaler.fit_transform(x)
+
+#%%
+pca = PCA()
+pca.fit(data_scaled)
+
+# Calculate the explained variance ratio
+explained_variance = pca.explained_variance_ratio_
+
+# Plot the explained variance
+plt.plot(np.cumsum(explained_variance))
+plt.xlabel('Number of Components')
+plt.ylabel('Cumulative Explained Variance')
+plt.title('Elbow Method for PCA')
+plt.show()
+
+#%%
+pca_comp= 7
+pca = PCA(n_components=pca_comp)
+pca_fitted = pca.fit_transform(data_scaled)
+pca_results = y.join(pd.DataFrame(pca_fitted, columns=["PC{}".format(x) for x in range(pca_comp)]))
+pca_results.to_csv(
+    "data/results/pca_per_champ_build.csv", index=False
+)
+
+#%%
+## GRAPH TSNE AND KMEANS
+tsne = TSNE(n_components=2, random_state=42)
+tsne_fitted = tsne.fit_transform(pca_fitted)
+kmeans = KMeans(n_clusters=10, random_state=42)
+y["predCluster"] = kmeans.fit_predict(tsne_fitted)
+y["predCluster"] = y.predCluster.astype("category")
+tsne_results = y.join(pd.DataFrame(tsne_fitted, columns=["TSNE_0", "TSNE_1"]))
+
+ax = sns.scatterplot(data=tsne_results, x="TSNE_0", y="TSNE_1", hue="predCluster")
 plt.legend(bbox_to_anchor=(1, 1), loc=2, borderaxespad=0.0)
 fig = ax.get_figure()
 fig.suptitle("Cluster by Champion and Builds")
-fig.savefig("data/results/images/championCluster_gaussian.jpg")
+fig.savefig("data/results/images/championCluster_tsne.jpg")
+
+#%%
+# pcaGaussianClusters = apply_pca_pipeline(clustersGrouped, 9, "KMeans")
+# pcaGaussianClusters.to_csv(
+#     "data/results/gaussian_cluster_per_champ_build.csv", index=False
+# )
+# clustersGrouped.to_csv("data/results/cluster_prob_per_champ_build.csv", index=False)
+
 # %%
-pcaGaussianClusters["champBuild"] = (
-    pcaGaussianClusters["champion"] + " (" + pcaGaussianClusters["build"].str[5:] + ")"
+# GET LIST OF CHAMP + BUILDS AND FORMAT FOR README FILE
+tsne_results["champBuild"] = (
+    tsne_results["champion"] + " (" + tsne_results["build"].str[5:] + ")"
 )
 clusterChampsListed = (
-    pcaGaussianClusters.groupby("predCluster")["champBuild"]
+    tsne_results.groupby("predCluster")["champBuild"]
     .apply(lambda x: ", ".join(x))
     .reset_index()
 )
+clusterChampsListed["predCluster"] = clusterChampsListed.predCluster.astype("string")
+clusterChampsListed['|Cluster|Champion and Build|'] = "|"  + clusterChampsListed['predCluster'] + "|" + clusterChampsListed['champBuild'] + "|"
+clusterChampsListed = clusterChampsListed[['|Cluster|Champion and Build|']]
+clusterChampsListed
 # %%
-clusterChampsListed.to_csv("data/results/listed_champBuild_clusters.csv", index=False)
+clusterChampsListed.to_csv("data/results/listed_champBuild_clusters_tsne.csv", index=False)
 # %%
