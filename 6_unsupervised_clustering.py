@@ -297,7 +297,7 @@ optimal_cluster_results = get_n_cluster_score_per_model(
 )
 
 #%%
-pcaGaussianClusters = apply_pca_pipeline(clustersGrouped, 7, "KMeans")
+pcaGaussianClusters = apply_pca_pipeline(clustersGrouped, 9, "KMeans")
 pcaGaussianClusters.to_csv(
     "data/results/gaussian_cluster_per_champ_build.csv", index=False
 )
