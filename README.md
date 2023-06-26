@@ -1,4 +1,4 @@
-# League of Legends ARAM Champion Recommendation Model
+# League of Legends ARAM Unsupervised Clustering to Recommend Champion
 
 ## Overview
 
